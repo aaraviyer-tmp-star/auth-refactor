@@ -33,7 +33,7 @@ export class AuthService {
     const refreshDecoded = verifyRefreshToken(tokens.refreshToken);
     userStore.addRefreshToken(refreshDecoded.jti, user.id, refreshDecoded.exp);
 
-    const { passwordHash: _, ...safeUser } = user;
+    const { passwordHash: _pw, ...safeUser } = user;
     return { tokens, user: safeUser };
   }
 
@@ -61,7 +61,7 @@ export class AuthService {
     const refreshDecoded = verifyRefreshToken(tokens.refreshToken);
     userStore.addRefreshToken(refreshDecoded.jti, user.id, refreshDecoded.exp);
 
-    const { passwordHash: _, ...safeUser } = user;
+    const { passwordHash: _pw, ...safeUser } = user;
     return { tokens, user: safeUser };
   }
 
@@ -75,7 +75,7 @@ export class AuthService {
     let decoded;
     try {
       decoded = verifyRefreshToken(refreshToken);
-    } catch (err: any) {
+    } catch (_err: any) {
       const e: any = new Error('Invalid or expired refresh token');
       e.statusCode = 401;
       throw e;
