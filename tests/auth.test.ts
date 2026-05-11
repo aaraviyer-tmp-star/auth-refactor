@@ -214,6 +214,30 @@ describe('Auth endpoints', () => {
     it('returns 401 without token', async () => {
       await api().get('/protected').expect(401);
     });
+
+    it('returns 401 when access token is expired', async () => {
+      // Manually craft a token that expired 60 seconds ago
+      const jwt = require('jsonwebtoken');
+      const secret = process.env.JWT_SECRET!;
+      const expiredToken = jwt.sign(
+        { sub: 'any-user-id', email: 'any@email.com', exp: Math.floor(Date.now() / 1000) - 60 },
+        secret,
+      );
+
+      await api()
+        .get('/protected')
+        .set('Authorization', `Bearer ${expiredToken}`)
+        .expect(401)
+        .expect({ error: 'Access token expired' });
+    });
+
+    it('returns 401 when access token is tampered', async () => {
+      await api()
+        .get('/protected')
+        .set('Authorization', 'Bearer tampered.token.here')
+        .expect(401)
+        .expect({ error: 'Invalid access token' });
+    });
   });
 
   // ── Health check ────────────────────────────────────────────────────────
